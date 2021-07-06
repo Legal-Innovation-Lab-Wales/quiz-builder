@@ -8,6 +8,8 @@ FactoryBot.define do
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
     confirmed_at { Date.today }
+    terms { true }
+    approved { true }
 
     trait :admin do
       admin { true }
@@ -16,6 +18,11 @@ FactoryBot.define do
 
     trait :alt_admin do
       admin { true }
+      organisation { association(:organisation) }
+    end
+
+    trait :unapproved do
+      approved { false }
       organisation { association(:organisation) }
     end
   end

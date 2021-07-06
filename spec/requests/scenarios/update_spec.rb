@@ -10,7 +10,9 @@ RSpec.describe 'update scenario (PUT scenario)', type: :request do
 
   context 'when admin signed in' do
     before { sign_in admin }
-    let(:valid_attributes) { { scenario: { name: 'updated name' } } }
+    let(:valid_attributes) { { scenario: { name: 'updated name',
+                                           variables: %w[health stamina experience coin],
+                                           variable_initial_values: [100, 100, 0, 10] } } }
     before { put "/scenarios/#{scenario_id}", params: valid_attributes, headers: headers }
 
     context 'when scenario exists' do
@@ -21,6 +23,22 @@ RSpec.describe 'update scenario (PUT scenario)', type: :request do
       it 'updates the scenario' do
         updated_scenario = Scenario.find(scenario_id)
         expect(updated_scenario.name).to match(/updated name/)
+      end
+
+      context 'and the update request is invalid' do
+        before { put "/scenarios/#{scenario_id}",
+                     params: { scenario: { name: nil,
+                                           variables: %w[health stamina experience coin],
+                                           variable_initial_values: [100, 100, 0, 10] } },
+                     headers: headers }
+
+        it 'returns status code 422' do
+          expect(response).to have_http_status(422)
+        end
+
+        it 'returns a failure message' do
+          expect(response.body).to include("Name can't be blank")
+        end
       end
     end
 

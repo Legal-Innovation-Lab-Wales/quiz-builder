@@ -88,33 +88,62 @@ RSpec.describe 'show scenario (GET scenario)', type: :request do
     end
   end
 
-  context 'when admin signed in and scenario is not available' do
+  context 'when admin signed in' do
     before { sign_in admin }
-    let(:unavailable_scenario) { create(:scenario, :unavailable) }
-    let!(:questions) { create_list(:question, 10, scenario: unavailable_scenario) }
-    before { get "/scenarios/#{unavailable_scenario.id}", headers: headers }
 
-    it 'returns the scenario' do
-      expect(Scenario.find(unavailable_scenario.id)).to be_present
-      expect(json).not_to be_empty
-      expect(json['id']).to eq(unavailable_scenario.id)
+    context 'and they begin a new scenario' do
+      before { get '/scenarios/new' }
+
+      it 'assigns new scenario instance variable' do
+        expect(assigns(:scenario)).to be_present
+        expect(assigns(:scenario)).not_to be_persisted
+      end
+
+      it 'returns a status code 200' do
+        expect(response).to have_http_status(200)
+      end
     end
 
-    it 'includes questions with the scenario' do
-      expect(json['questions']).not_to be_empty
-      expect(json['questions'].size).to eq(10)
+    context 'and they edit a scenario' do
+      let!(:scenario) { create(:scenario) }
+      before { get "/scenarios/#{scenario.id}/edit" }
+
+      it 'assigns scenario instance variable' do
+        expect(assigns(:scenario)).to eq(scenario)
+      end
+
+      it 'returns a status code 200' do
+        expect(response).to have_http_status(200)
+      end
     end
 
-    it 'returns http status success' do
-      expect(response).to have_http_status(:success)
-    end
+    context 'and scenario is not available' do
+      let(:unavailable_scenario) { create(:scenario, :unavailable) }
+      let!(:questions) { create_list(:question, 10, scenario: unavailable_scenario) }
+      before { get "/scenarios/#{unavailable_scenario.id}", headers: headers }
 
-    it 'returns json content' do
-      expect(response.content_type).to include('application/json')
-    end
+      it 'returns the scenario' do
+        expect(Scenario.find(unavailable_scenario.id)).to be_present
+        expect(json).not_to be_empty
+        expect(json['id']).to eq(unavailable_scenario.id)
+      end
 
-    it 'expects the scenario to be not available' do
-      expect(json['available']).to be_falsey
+      it 'includes questions with the scenario' do
+        expect(json['questions']).not_to be_empty
+        expect(json['questions'].size).to eq(10)
+      end
+
+      it 'returns http status success' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'returns json content' do
+        expect(response.content_type).to include('application/json')
+      end
+
+      it 'expects the scenario to be not available' do
+        expect(json['available']).to be_falsey
+      end
     end
   end
 end

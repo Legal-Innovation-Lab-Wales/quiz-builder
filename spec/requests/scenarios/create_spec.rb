@@ -5,10 +5,6 @@ RSpec.describe 'create scenario (POST scenarios)', type: :request do
   let(:user) { create(:user) }
   let(:admin) { create(:user, :admin) }
   let(:alt_admin) { create(:user, :alt_admin) }
-  # let!(:scenarios) { create_list(:scenario, 10, user: admin) }
-  # let!(:alt_scenarios) { create_list(:scenario, 10, user: alt_admin) }
-  # let(:scenario_id) { scenarios.first.id }
-  # let!(:questions) { create_list(:question, 10, scenario: scenarios.first) }
 
   let(:headers) { { 'ACCEPT' => 'application/json' } }
 
@@ -48,7 +44,6 @@ RSpec.describe 'create scenario (POST scenarios)', type: :request do
   context 'when admin signed in' do
     before { sign_in admin }
     context 'when the request is valid' do
-
       before { post '/scenarios', params: valid_attributes, headers: headers }
 
       it 'creates a question' do
@@ -58,6 +53,18 @@ RSpec.describe 'create scenario (POST scenarios)', type: :request do
 
       it 'returns status code 201' do
         expect(response).to have_http_status(201)
+      end
+    end
+
+    context 'when the request in invalid' do
+      before { post '/scenarios', params: { scenario: { name: 'Foo' } }, headers: headers }
+
+      it 'returns status code 422' do
+        expect(response).to have_http_status(422)
+      end
+
+      it 'returns a failure message' do
+        expect(response.body).to include("Description can't be blank")
       end
     end
 

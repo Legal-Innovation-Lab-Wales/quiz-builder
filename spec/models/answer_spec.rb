@@ -21,4 +21,27 @@ RSpec.describe Answer, type: :model do
       expect answer.next_question_id.present?
     end
   end
+
+  context 'update variable mods' do
+    let(:answer) { create(:answer) }
+
+    it 'sets variable mods from scenario if missing with value 0' do
+      expect(answer.variable_mods).to be_empty
+      answer.update_variable_mods
+
+      expect(answer.variable_mods).not_to be_empty
+
+      answer.variable_mods.each_with_index do |variable_mod, index|
+        expect(variable_mod[0]).to eq(answer.question.scenario.variables[index])
+        expect(variable_mod[1]).to eq(0.to_s)
+      end
+    end
+
+    it 'removes variable mods from answer if not present on scenario' do
+      answer.variable_mods = { foo: 42 }
+
+      answer.update_variable_mods
+      expect(answer.variable_mods['foo']).not_to be_present
+    end
+  end
 end

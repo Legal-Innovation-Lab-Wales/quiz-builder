@@ -6,5 +6,17 @@ FactoryBot.define do
     sequence(:order)
     text { 'MyString' }
     description { 'MyString' }
+
+    factory :question_with_answers do
+      transient do
+        answers_count { 4 }
+      end
+
+      after(:create) do |question, evaluator|
+        evaluator.answers_count.times { question.answers << FactoryBot.create(:answer, question: question) }
+
+        question.reload
+      end
+    end
   end
 end

@@ -3,6 +3,9 @@ require 'spec_helper'
 
 ENV['RAILS_ENV'] ||= 'test'
 
+require 'simplecov'
+SimpleCov.start
+
 # require database cleaner at the top level
 require 'database_cleaner'
 

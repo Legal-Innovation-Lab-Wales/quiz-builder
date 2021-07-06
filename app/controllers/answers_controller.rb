@@ -16,8 +16,6 @@ class AnswersController < ApplicationController
         format.html { redirect_to scenario_path(@question.scenario_id, anchor: "question_order_#{@question.order.to_s}") }
         format.json { json_response(@answer, :created) }
       end
-    else
-      render @answer.errors, status: :unprocessable_entity
     end
   end
 
@@ -33,8 +31,6 @@ class AnswersController < ApplicationController
         format.html { redirect_to scenario_path(@question.scenario_id, anchor: "question_order_#{@question.order}") }
         format.json { json_response(@answer, :ok) }
       end
-    else
-      render @answer.errors, status: :unprocessable_entity
     end
   end
 

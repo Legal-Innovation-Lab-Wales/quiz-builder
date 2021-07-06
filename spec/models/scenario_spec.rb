@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe Scenario, type: :model do
+  let!(:scenario) { create(:scenario_with_questions) }
+
   # Association Test
   # ensure Scenario record belongs to a single User
   it { should belong_to(:user) }
@@ -19,4 +21,19 @@ RSpec.describe Scenario, type: :model do
   it { should validate_presence_of(:variable_initial_values) }
   it { should validate_presence_of(:name) }
   it { should validate_presence_of(:description) }
+
+  context 'model function' do
+    context 'first_question' do
+      it 'returns question with order 0' do
+        expect(scenario.first_question.order).to eq(0)
+      end
+    end
+
+    context 'update_answers' do
+      it 'triggers update to all answers variable mods' do
+        scenario.answers.each { |answer| expect(answer).to receive(:update_variable_mods) }
+        scenario.send(:update_answers)
+      end
+    end
+  end
 end
